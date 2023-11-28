@@ -16,7 +16,6 @@ class Logistic_Regression(LogisticRegression):
         clf = super().fit(X,Y)
         coeffs = clf.coef_
         bias = clf.intercept_
-        print(bias)
         if coeffs.shape[0] == 1:
             coeffs = [coeffs[0], [-value for value in coeffs[0]]]
             bias = np.array([bias[0], -bias[0]])
@@ -68,7 +67,7 @@ class Logistic_Regression(LogisticRegression):
         for word in range (self.n):
             microquery += f"(l.f{word}*test.f{word})+"
         microquery = microquery[:-1]+")"
-        print(microquery) 
+
         query = f'''
 
         WITH step AS (

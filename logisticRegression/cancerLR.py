@@ -60,7 +60,6 @@ for i,e in enumerate(a):
     elif e == 0:
         lista.append(4)
 lista = np.array(lista)
-print(lista)
 from sklearn.metrics import accuracy_score
 accuracy = accuracy_score(y_test, lista) 
 print(accuracy)
