@@ -16,6 +16,32 @@ model.clear(engine)
 model.fit(X,Y,engine)
 results = model.predict(X,engine)
 accuracy = accuracy_score(Y, results) 
-print(accuracy)
+print('DecisionTree COO accuracy: ',accuracy)
 
+##################################################
 
+iris = load_iris()
+X = iris.data  
+Y = iris.target 
+
+engine = create_engine("postgresql://postgres:0698@localhost:5432/irisdt2")
+
+model = DecisionTree2() 
+model.clear(engine)
+model.fit(X,Y,engine)
+results = model.predict(X,engine)
+accuracy = accuracy_score(Y, results) 
+print('DecisionTree vect accuracy: ',accuracy)
+
+##################################################
+
+from sklearn.tree import DecisionTreeClassifier
+
+iris = load_iris()
+X = iris.data  
+Y = iris.target 
+model = DecisionTreeClassifier()
+model.fit(X,Y)
+results = model.predict(X)
+accuracy = accuracy_score(Y, results) 
+print('DecisionTree sklearn accuracy: ',accuracy)
