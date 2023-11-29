@@ -45,7 +45,7 @@ def prep():
 
 X_train, X_test, y_train, y_test = prep() 
 
-engine = create_engine("postgresql://postgres:0698@localhost:5432/cancerdt")
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
 
 model = DecisionTree() 
 model.clear(engine)
@@ -65,7 +65,7 @@ print('DecisionTree COO accuracy: ',accuracy)
 
 ##################################################
 
-engine = create_engine("postgresql://postgres:0698@localhost:5432/cancerdt2")
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
 
 model = DecisionTree2() 
 model.clear(engine)

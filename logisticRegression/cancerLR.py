@@ -44,7 +44,7 @@ def prep():
 
 X_train, X_test, y_train, y_test = prep()       
 
-engine = create_engine("postgresql://postgres:0698@localhost:5432/cancerlr")
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
 
 model = Logistic_Regression()
 model.clear(engine)

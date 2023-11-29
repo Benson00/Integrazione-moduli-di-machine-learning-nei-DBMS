@@ -6,7 +6,7 @@ from logistic_regression import Logistic_Regression2
 X, y = load_iris(return_X_y=True)
 
 # VETTORIALE
-engine = create_engine("postgresql://postgres:0698@localhost:5432/irislr")
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
 
 model = Logistic_Regression()
 model.clear(engine)
@@ -19,7 +19,7 @@ print(accuracy)
 
 # COO
 
-engine = create_engine("postgresql://postgres:0698@localhost:5432/irislr2")
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
 
 model2 = Logistic_Regression2()
 model2.clear(engine)
