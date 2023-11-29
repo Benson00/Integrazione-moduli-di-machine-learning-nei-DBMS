@@ -1,16 +1,16 @@
 from sqlalchemy import create_engine
-from sqlearn.DecisionTree import DecisionTree
-from sqlearn.DecisionTree import DecisionTree2
+from randomForest import RandomForest, RandomForest2
 from sklearn.datasets import load_iris
 from sklearn.metrics import accuracy_score
 
+
 iris = load_iris()
 X = iris.data  
-Y = iris.target 
+Y = iris.target
 
+# Primo metodo (COO)
 engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-
-model = DecisionTree() 
+model = RandomForest(4)
 model.clear(engine)
 model.fit(X,Y,engine)
 results = model.predict(X,engine)
@@ -19,28 +19,23 @@ print('DecisionTree COO accuracy: ',accuracy)
 
 ##################################################
 
-iris = load_iris()
-X = iris.data  
-Y = iris.target 
-
+# Secondo metodo (VEC)
 engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-
-model = DecisionTree2() 
+model = RandomForest2(4)
 model.clear(engine)
 model.fit(X,Y,engine)
 results = model.predict(X,engine)
+#print(results)
 accuracy = accuracy_score(Y, results) 
-print('DecisionTree vect accuracy: ',accuracy)
+print('DecisionTree VEC accuracy: ',accuracy)
 
 ##################################################
 
-from sklearn.tree import DecisionTreeClassifier
-
-iris = load_iris()
-X = iris.data  
-Y = iris.target 
-model = DecisionTreeClassifier()
+# Terzo metodo (scikit-learn)
+from sklearn.ensemble import RandomForestClassifier  
+model = RandomForestClassifier(4)
 model.fit(X,Y)
 results = model.predict(X)
+#print(results)
 accuracy = accuracy_score(Y, results) 
-print('DecisionTree sklearn accuracy: ',accuracy)
+print('scikit-learn accuracy: ',accuracy)

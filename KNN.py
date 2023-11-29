@@ -59,7 +59,6 @@ class KnnClassifier():
         session.commit()
 
         connection = engine.connect()
-        predictions = []
         
         #CREAZIONE QUERY PARAMETRIZZATA
         parte1 = f'''  
@@ -99,10 +98,11 @@ class KnnClassifier():
         query = parte1 + parte2 + parte3
         query = text(query)
         a = connection.execute(query)
+        predictions=[]
         for row in a:
-            predictions.append(np.array(row))
+            secondo_elemento = int(row[1])
+            predictions.append(secondo_elemento)
         predictions = np.array(predictions)
-                
         return predictions
 
 
@@ -200,7 +200,9 @@ class Knn():
         a = connection.execute(query)
 
         #RESTITUISCO I RISULTATI DELLA QUERY
-        predictions = []
+        predictions=[]
         for row in a:
-            predictions.append(np.array(row))
-        return np.array(predictions)
+            secondo_elemento = int(row[1])
+            predictions.append(secondo_elemento)
+        predictions = np.array(predictions)
+        return predictions

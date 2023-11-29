@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sqlalchemy import create_engine
-from sqlearn.DecisionTree import DecisionTree
-from sqlearn.DecisionTree import DecisionTree2
+from KNN import Knn, KnnClassifier
+from sklearn.metrics import accuracy_score
 
+#RUN
+
+#metodo per prepare i dati
 def prep():
     data = 'data/cancer.txt'
 
@@ -41,55 +43,29 @@ def prep():
     return X_train, X_test, y_train, y_test
 
 
-X_train, X_test, y_train, y_test = prep() 
-
+X_train, X_test, y_train, y_test = prep()       
 engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-
-model = DecisionTree() 
-model.clear(engine)
-model.fit(X_train,y_train,engine)
-results=model.predict(X_test,engine)
-a = [int(x) for x in results]
-a=np.array(a)
-lista = []
-for i,e in enumerate(a):
-    if e == 1:
-        lista.append(4)
-    elif e == 0:
-        lista.append(2)
-lista = np.array(lista)
-accuracy = accuracy_score(y_test, lista) 
-print('DecisionTree COO accuracy: ',accuracy)
-
-##################################################
-
+# Connect to the database
+conn = engine.connect()
+#########################################################################################
+c = KnnClassifier(3)
+c.clear(engine)
+c.fit(X_train, y_train,engine)
+a=c.predict(X_test, engine)
+accuracy = accuracy_score(y_test, a) 
+print('VEC accuracy: ',accuracy)
+#########################################################################################
 engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-
-model = DecisionTree2() 
-model.clear(engine)
-model.fit(X_train,y_train,engine)
-results=model.predict(X_test,engine)
-a = [int(x) for x in results]
-a=np.array(a)
-lista = []
-for i,e in enumerate(a):
-    if e == 1:
-        lista.append(4)
-    elif e == 0:
-        lista.append(2)
-lista = np.array(lista)
-accuracy = accuracy_score(y_test, lista) 
-print('DecisionTree VEC accuracy: ',accuracy)
-
-
-##################################################
-
-from sklearn.tree import DecisionTreeClassifier
-
-
-model = DecisionTreeClassifier()
-model.fit(X_train,y_train)
-results = model.predict(X_test)
-
-results=model.predict(X_test,engine)
-print('DecisionTree sklearn accuracy: ',accuracy)
+c = Knn(3)
+c.clear(engine)
+c.fit(X_train, y_train, engine)
+a=c.predict(X_test, engine)
+accuracy = accuracy_score(y_test, a) 
+print('COO accuracy: ',accuracy)
+#########################################################################################
+from sklearn.neighbors import KNeighborsClassifier
+c = KNeighborsClassifier(3)
+c.fit(X_train, y_train)
+a=c.predict(X_test)
+accuracy = accuracy_score(y_test, a) 
+print('scikit-learn accuracy: ',accuracy)

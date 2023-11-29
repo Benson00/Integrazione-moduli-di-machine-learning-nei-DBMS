@@ -1,7 +1,7 @@
 from sklearn.datasets import load_iris
 from sqlalchemy import create_engine
-from sqlearn.logistic_regression import Logistic_Regression
-from sqlearn.logistic_regression import Logistic_Regression2
+from logistic_regression import Logistic_Regression
+from logistic_regression import Logistic_Regression2
 
 X, y = load_iris(return_X_y=True)
 
