@@ -2,3 +2,6 @@ knn/__pycache__/KNN.cpython-39.pyc
 decisionTree/__pycache__/DecisionTree.cpython-39.pyc
 logisticRegression/__pycache__/logistic_regression.cpython-39.pyc
 random_Forest/__pycache__/randomForest.cpython-39.pyc
+decisionTree/query.py
+random_Forest/query.py
+notebook.ipynb
