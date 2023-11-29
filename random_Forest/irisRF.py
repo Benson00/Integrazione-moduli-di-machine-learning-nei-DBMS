@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine
 from randomForest import RandomForest, RandomForest2
 from sklearn.datasets import load_iris
-import numpy as np
 from sklearn.metrics import accuracy_score
 
 

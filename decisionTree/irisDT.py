@@ -2,14 +2,13 @@ from sqlalchemy import create_engine
 from DecisionTree import DecisionTree
 from DecisionTree import DecisionTree2
 from sklearn.datasets import load_iris
-import numpy as np
 from sklearn.metrics import accuracy_score
 
 iris = load_iris()
 X = iris.data  
 Y = iris.target 
 
-engine = create_engine("postgresql://postgres:0698@localhost:5432/irisdt")
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
 
 model = DecisionTree() 
 model.clear(engine)
@@ -24,7 +23,7 @@ iris = load_iris()
 X = iris.data  
 Y = iris.target 
 
-engine = create_engine("postgresql://postgres:0698@localhost:5432/irisdt2")
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
 
 model = DecisionTree2() 
 model.clear(engine)

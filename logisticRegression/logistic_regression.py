@@ -1,5 +1,4 @@
 from sklearn.linear_model import LogisticRegression
-import sqlite3
 import numpy as np
 import math
 from sqlalchemy.orm import Session

@@ -1,4 +1,3 @@
-import math
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sqlalchemy import Column, Float, Integer, MetaData, Table, text

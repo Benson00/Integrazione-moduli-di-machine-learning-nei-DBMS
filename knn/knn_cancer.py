@@ -1,9 +1,7 @@
-import math
-import sqlite3
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import create_engine
 from KNN import KnnClassifier
 
 
