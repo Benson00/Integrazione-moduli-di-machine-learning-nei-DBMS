@@ -2,9 +2,11 @@
 
 from sklearn.model_selection import train_test_split
 from sqlalchemy import create_engine
-from logistic_regression import Logistic_Regression
+from sqlearn.randomForest import RandomForest, RandomForest2
 import pandas as pd
 import numpy as np
+from sklearn.metrics import accuracy_score
+
 
 #metodo per prepare i dati
 def prep():
@@ -40,26 +42,47 @@ def prep():
     y_test=y_test.to_numpy()
 
     return X_train, X_test, y_train, y_test
-
-
+def prep_results(results):
+    a = [int(x) for x in results]
+    a=np.array(a)
+    lista = []
+    for i,e in enumerate(a):
+        if e == 1:
+            lista.append(4)
+        elif e == 0:
+            lista.append(2)
+    lista = np.array(lista)
+    return lista
 X_train, X_test, y_train, y_test = prep()       
 
+# Primo metodo (COO)
 engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-
-model = Logistic_Regression()
+model = RandomForest(4)
 model.clear(engine)
 model.fit(X_train,y_train,engine)
-results=model.predict(X_test,engine)
+results = model.predict(X_test,engine)
+results = prep_results(results)
+accuracy = accuracy_score(y_test, results) 
+print('DecisionTree COO accuracy: ',accuracy)
 
-a = [int(x) for x in results]
-a=np.array(a)
-lista = []
-for i,e in enumerate(a):
-    if e == 1:
-        lista.append(2)
-    elif e == 0:
-        lista.append(4)
-lista = np.array(lista)
-from sklearn.metrics import accuracy_score
-accuracy = accuracy_score(y_test, lista) 
-print(accuracy)
+##################################################
+
+# Secondo metodo (VEC)
+engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
+model = RandomForest2(4)
+model.clear(engine)
+model.fit(X_train,y_train,engine)
+results = model.predict(X_test,engine)
+results = prep_results(results)
+accuracy = accuracy_score(y_test, results) 
+print('DecisionTree VEC accuracy: ',accuracy)
+
+##################################################
+
+# Terzo metodo (scikit-learn)
+from sklearn.ensemble import RandomForestClassifier  
+model = RandomForestClassifier(4)
+model.fit(X_train,y_train)
+results = model.predict(X_test)
+accuracy = accuracy_score(y_test, results) 
+print('scikit-learn accuracy: ',accuracy)

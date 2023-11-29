@@ -1,11 +1,10 @@
-import numpy as np
-import pandas as pd
+#RUN
+
 from sklearn.model_selection import train_test_split
 from sqlalchemy import create_engine
-from KNN import KnnClassifier
-
-
-#RUN
+from sqlearn.logistic_regression import Logistic_Regression
+import pandas as pd
+import numpy as np
 
 #metodo per prepare i dati
 def prep():
@@ -45,29 +44,22 @@ def prep():
 
 X_train, X_test, y_train, y_test = prep()       
 
-
-
 engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-# Connect to the database
-conn = engine.connect()
-c = KnnClassifier(10)
-c.clear(engine)
 
+model = Logistic_Regression()
+model.clear(engine)
+model.fit(X_train,y_train,engine)
+results=model.predict(X_test,engine)
 
-c.fit(X_train, y_train,engine)
-a=c.predict(X_test, engine)
-
-a = a[:, 1]
-a = [int(x) for x in a]
+a = [int(x) for x in results]
 a=np.array(a)
-j = 0
-
+lista = []
 for i,e in enumerate(a):
-    if e == 0:
-        e = 2
-    elif e == 1:
-        e = 4
-    if e == y_test[i]: j+=1
-
-
-print(f'Precisione: {((j/len(a))*100):.2f}%')
+    if e == 1:
+        lista.append(2)
+    elif e == 0:
+        lista.append(4)
+lista = np.array(lista)
+from sklearn.metrics import accuracy_score
+accuracy = accuracy_score(y_test, lista) 
+print(accuracy)

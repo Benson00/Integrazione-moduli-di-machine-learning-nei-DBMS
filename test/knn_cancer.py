@@ -2,9 +2,12 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sqlalchemy import create_engine
-from KNN import Knn
+from sqlearn.KNN import KnnClassifier
 
 
+#RUN
+
+#metodo per prepare i dati
 def prep():
     data = 'data/cancer.txt'
 
@@ -43,20 +46,28 @@ def prep():
 X_train, X_test, y_train, y_test = prep()       
 
 
+
 engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-
-
-c = Knn(10)
+# Connect to the database
+conn = engine.connect()
+c = KnnClassifier(10)
 c.clear(engine)
-c.fit(X_train, y_train, engine)
 
+
+c.fit(X_train, y_train,engine)
 a=c.predict(X_test, engine)
-
 
 a = a[:, 1]
 a = [int(x) for x in a]
+a=np.array(a)
 j = 0
+
 for i,e in enumerate(a):
+    if e == 0:
+        e = 2
+    elif e == 1:
+        e = 4
     if e == y_test[i]: j+=1
 
-print(f'Precisione: {((j/len(a))*100):.2f}%') 
+
+print(f'Precisione: {((j/len(a))*100):.2f}%')

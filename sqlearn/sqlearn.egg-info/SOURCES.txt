@@ -1,0 +1,10 @@
+setup.py
+sqlearn/DecisionTree.py
+sqlearn/KNN.py
+sqlearn/__init__.py
+sqlearn/logistic_regression.py
+sqlearn/randomForest.py
+sqlearn.egg-info/PKG-INFO
+sqlearn.egg-info/SOURCES.txt
+sqlearn.egg-info/dependency_links.txt
+sqlearn.egg-info/top_level.txt
