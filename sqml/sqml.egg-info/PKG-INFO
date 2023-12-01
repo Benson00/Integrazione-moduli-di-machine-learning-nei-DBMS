@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: sqml
+Version: 0.0.1
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: scikit-learn
+Requires-Dist: sqlalchemy

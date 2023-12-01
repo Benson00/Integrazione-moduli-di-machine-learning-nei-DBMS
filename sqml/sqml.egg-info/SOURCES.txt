@@ -1,0 +1,11 @@
+setup.py
+sqml/__init__.py
+sqml/decisionTree.py
+sqml/knn.py
+sqml/logistic_regression.py
+sqml/randomForest.py
+sqml.egg-info/PKG-INFO
+sqml.egg-info/SOURCES.txt
+sqml.egg-info/dependency_links.txt
+sqml.egg-info/requires.txt
+sqml.egg-info/top_level.txt

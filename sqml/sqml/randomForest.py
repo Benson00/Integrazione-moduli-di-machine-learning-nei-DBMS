@@ -5,7 +5,7 @@ from sqlalchemy import Column, Float, Integer, MetaData, String, Table, text
 from sqlalchemy.orm import Session
 
 
-class RandomForest(RandomForestClassifier):
+class RandomForestCOO(RandomForestClassifier):
 
     def __init__(self,n_estimators):
         super().__init__(n_estimators)
@@ -165,7 +165,7 @@ class RandomForest(RandomForestClassifier):
     
 ###################################################################################################################
         
-class RandomForest2(RandomForestClassifier):
+class RandomForestVEC(RandomForestClassifier):
 
     def __init__(self,n_estimators):
         super().__init__(n_estimators)

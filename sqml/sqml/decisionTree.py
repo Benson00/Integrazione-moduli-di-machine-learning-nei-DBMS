@@ -3,7 +3,7 @@ import numpy as np
 from sqlalchemy import Column, Float, Integer, MetaData, String, Table, text
 from sqlalchemy.orm import Session
 
-class DecisionTree(DecisionTreeClassifier):
+class DecisionTreeCOO(DecisionTreeClassifier):
 
     def __init__(self):
         super().__init__()
@@ -145,7 +145,7 @@ class DecisionTree(DecisionTreeClassifier):
         return a
     
 
-class DecisionTree2(DecisionTreeClassifier):
+class DecisionTreeVEC(DecisionTreeClassifier):
     def __init__(self):
         super().__init__()
 

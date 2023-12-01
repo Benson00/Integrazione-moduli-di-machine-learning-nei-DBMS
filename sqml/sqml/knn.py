@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 
 
-class KnnClassifier():
+class KnnClassifierVEC():
 
 
     def __init__(self, n_neighbors:int):
@@ -106,7 +106,7 @@ class KnnClassifier():
         return predictions
 
 
-class Knn():
+class KnnClassifierCOO():
 
     def __init__(self, n_neighbors):
         self.n_neighbors = n_neighbors

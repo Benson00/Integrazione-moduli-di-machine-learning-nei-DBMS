@@ -4,9 +4,9 @@ import math
 from sqlalchemy.orm import Session
 
 
-from sqlalchemy import Column, Float, Integer, MetaData, Table, text
+from sqlalchemy import Column, Float, Integer, MetaData, Numeric, Table, text
 
-class Logistic_Regression(LogisticRegression):
+class LogisticRegressionCOO(LogisticRegression):
 
     def __init__(self):
         super().__init__()
@@ -85,7 +85,7 @@ class Logistic_Regression(LogisticRegression):
         return a
 
 
-class Logistic_Regression2(LogisticRegression):
+class LogisticRegressionVEC(LogisticRegression):
 
     def __init__(self):
         super().__init__()
@@ -136,7 +136,7 @@ class Logistic_Regression2(LogisticRegression):
             metadata,
             Column('row', Integer, primary_key=True),
             Column('column', Integer, primary_key=True),
-            Column('value', Float, primary_key=True)
+            Column('value', Numeric, primary_key=True)
         )
         metadata.create_all(engine)
         session = Session(engine)
