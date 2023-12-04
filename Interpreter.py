@@ -13,9 +13,6 @@ class Interpreter:
 
         self.engine = engine
         
-        # dict contains:
-        # - model's name as key
-        # - function that return classification as value
         self.models = {
             "vecknn":Interpreter.__vec_knn,
             "cooknn":Interpreter.__coo_knn,
@@ -35,8 +32,8 @@ class Interpreter:
         # modello data
         # parse
         # controllo che il modello sia presente in self.models
-        # se presente eseguo la funzione associata 
-        # se non presente sollevo eccezione
+            # se presente eseguo la funzione associata 
+            # se non presente sollevo eccezione
         
         pattern = re.compile(r'\S+')
         elementi = pattern.findall(program)
@@ -46,7 +43,8 @@ class Interpreter:
         if self.classifier in self.models:
             return self.models[self.classifier](self.engine,X_train, X_test, y_train, y_test)
         else:
-            raise KeyError
+            print('no model: ',elementi[0])
+            raise KeyError(elementi[0])
 
     # KNN
 
@@ -59,9 +57,7 @@ class Interpreter:
             print("Invalid input. Please enter a valid integer.")
 
         model = KnnClassifierVEC(n)
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
         
 
@@ -74,9 +70,7 @@ class Interpreter:
             print("Invalid input. Please enter a valid integer.")
 
         model = KnnClassifierCOO(n)        
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
     
     # DECISION TREE
@@ -84,17 +78,13 @@ class Interpreter:
     @staticmethod
     def __vec_dt(engine,X_train, X_test, y_train, y_test):
         model = DecisionTreeVEC()
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
     
     @staticmethod
     def __coo_dt(engine,X_train, X_test, y_train, y_test):
         model = DecisionTreeCOO()
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
     
 
@@ -107,9 +97,7 @@ class Interpreter:
         except ValueError:
             print("Invalid input. Please enter a valid integer.")
         model = RandomForestCOO(n)
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
     
     @staticmethod
@@ -119,9 +107,7 @@ class Interpreter:
         except ValueError:
             print("Invalid input. Please enter a valid integer.")
         model = RandomForestVEC(n)
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
     
     # LOGISTIC REGRESSION
@@ -129,17 +115,13 @@ class Interpreter:
     @staticmethod
     def __coo_lr(engine,X_train, X_test, y_train, y_test):
         model = LogisticRegressionVEC()
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
     
     @staticmethod
     def __vec_lr(engine,X_train, X_test, y_train, y_test):
         model = LogisticRegressionCOO()
-        model.clear(engine)
-        model.fit(X_train,y_train,engine)
-        results=model.predict(X_test,engine)
+        results = Interpreter.do(engine, X_train, X_test, y_train, model)
         return results,y_test
     
 
@@ -159,13 +141,20 @@ class Interpreter:
     @staticmethod
     def __prepare_data(data:str):
         df = pd.read_csv(data, header=None)
-        X = df.drop(df.columns[-1], axis=1)     # remove label
-        y = df.iloc[:, -1]                      # save in y labels
+        X = df.drop(df.columns[-1], axis=1)     
+        y = df.iloc[:, -1]                      
         
         X_train,X_test,y_train,y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
-        X_train = X_train.to_numpy()
-        X_test=X_test.to_numpy()
-        y_train=y_train.to_numpy()
+        X_train = X_train.to_numpy().astype(float)
+        X_test=X_test.to_numpy().astype(float)
+        y_train=y_train.to_numpy().astype(float)
         y_test=y_test.to_numpy()
         return X_train,X_test,y_train,y_test
     
+
+    @staticmethod
+    def do(engine, X_train, X_test, y_train, model):
+        model.clear(engine)
+        model.fit(X_train,y_train,engine)
+        results=model.predict(X_test,engine)
+        return results

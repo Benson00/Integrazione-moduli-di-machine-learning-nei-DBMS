@@ -1,10 +1,11 @@
-#RUN
-
+import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sqlalchemy import create_engine
-from randomForest import RandomForest, RandomForest2
-import pandas as pd
-import numpy as np
+from sqml.decisionTree import *
+from sqml.randomForest import *
+from sqml.knn import *
+from sqml.logistic_regression import *
 from sklearn.metrics import accuracy_score
 
 
@@ -42,6 +43,7 @@ def prep():
     y_test=y_test.to_numpy()
 
     return X_train, X_test, y_train, y_test
+
 def prep_results(results):
     a = [int(x) for x in results]
     a=np.array(a)
@@ -53,11 +55,17 @@ def prep_results(results):
             lista.append(2)
     lista = np.array(lista)
     return lista
+
 X_train, X_test, y_train, y_test = prep()       
 
+###################################################
+
 # Primo metodo (COO)
-engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-model = RandomForest(4)
+
+database_path = 'sqlite:///data/data.sqlite'        
+#database_path = '"postgresql://postgres:0698@localhost:5432/classification"'
+engine = create_engine(database_path)
+model = RandomForestCOO(4)
 model.clear(engine)
 model.fit(X_train,y_train,engine)
 results = model.predict(X_test,engine)
@@ -68,8 +76,11 @@ print('DecisionTree COO accuracy: ',accuracy)
 ##################################################
 
 # Secondo metodo (VEC)
-engine = create_engine("postgresql://postgres:0698@localhost:5432/classification")
-model = RandomForest2(4)
+
+database_path = 'sqlite:///data/data.sqlite'        
+#database_path = '"postgresql://postgres:0698@localhost:5432/classification"'
+engine = create_engine(database_path)
+model = RandomForestVEC(4)
 model.clear(engine)
 model.fit(X_train,y_train,engine)
 results = model.predict(X_test,engine)
