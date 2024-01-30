@@ -20,7 +20,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, rando
 database_path = 'sqlite:///data/data.sqlite'        
 #database_path = '"postgresql://postgres:0698@localhost:5432/classification"'
 engine = create_engine(database_path)
-model = RandomForestCOO(4)
+model = LogisticRegressionVEC()
 model.clear(engine)
 model.fit(X_train,y_train,engine)
 results = model.predict(X_test,engine)

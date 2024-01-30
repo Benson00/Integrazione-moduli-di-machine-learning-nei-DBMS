@@ -12,6 +12,7 @@ class RandomForestCOO(RandomForestClassifier):
 
     def fit(self,X,Y, engine):
         model = super().fit(X,Y)
+        self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
         forest = model.estimators_
 
 
@@ -160,8 +161,11 @@ class RandomForestCOO(RandomForestClassifier):
         for tupla in results:
             secondo_elemento = int(tupla[1])
             lista.append(secondo_elemento)
-        a = np.array(lista)
-        return a
+        a = []
+        for v in lista:
+            e = next(key for key, value in self.mapping.items() if value == v)
+            a.append(e)
+        return np.array(a)
     
 ###################################################################################################################
         
@@ -172,6 +176,7 @@ class RandomForestVEC(RandomForestClassifier):
 
     def fit(self,X,Y, engine):
         model = super().fit(X,Y)
+        self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
         forest = model.estimators_
 
         self.n = X.shape[1]
@@ -333,5 +338,8 @@ class RandomForestVEC(RandomForestClassifier):
         for tupla in results:
             secondo_elemento = int(tupla[1])
             lista.append(secondo_elemento)
-        a = np.array(lista)
-        return a
+        a = []
+        for v in lista:
+            e = next(key for key, value in self.mapping.items() if value == v)
+            a.append(e)
+        return np.array(a)

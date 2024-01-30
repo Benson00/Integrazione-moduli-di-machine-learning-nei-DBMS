@@ -44,17 +44,6 @@ def prep():
 
     return X_train, X_test, y_train, y_test
 
-def prep_results(results):
-    a = [int(x) for x in results]
-    a=np.array(a)
-    lista = []
-    for i,e in enumerate(a):
-        if e == 1:
-            lista.append(4)
-        elif e == 0:
-            lista.append(2)
-    lista = np.array(lista)
-    return lista
 
 X_train, X_test, y_train, y_test = prep()       
 
@@ -62,21 +51,20 @@ X_train, X_test, y_train, y_test = prep()
 
 # Primo metodo (COO)
 
-database_path = 'sqlite:///data/data.sqlite'        
-#database_path = '"postgresql://postgres:0698@localhost:5432/classification"'
+#database_path = 'sqlite:///data/data.sqlite'        
+database_path = "postgresql://postgres:0698@localhost:5432/classification"
 engine = create_engine(database_path)
-model = RandomForestCOO(4)
+model = LogisticRegressionVEC()
 model.clear(engine)
 model.fit(X_train,y_train,engine)
 results = model.predict(X_test,engine)
-results = prep_results(results)
 accuracy = accuracy_score(y_test, results) 
 print('DecisionTree COO accuracy: ',accuracy)
 
 ##################################################
 
 # Secondo metodo (VEC)
-
+""" 
 database_path = 'sqlite:///data/data.sqlite'        
 #database_path = '"postgresql://postgres:0698@localhost:5432/classification"'
 engine = create_engine(database_path)
@@ -96,4 +84,4 @@ model = RandomForestClassifier(4)
 model.fit(X_train,y_train)
 results = model.predict(X_test)
 accuracy = accuracy_score(y_test, results) 
-print('scikit-learn accuracy: ',accuracy)
+print('scikit-learn accuracy: ',accuracy) """

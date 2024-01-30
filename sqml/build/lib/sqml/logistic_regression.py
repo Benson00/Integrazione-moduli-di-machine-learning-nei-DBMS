@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from sqlalchemy import Column, Float, Integer, MetaData, Numeric, Table, text
 
-class LogisticRegressionCOO(LogisticRegression):
+class LogisticRegressionVEC(LogisticRegression):
 
     def __init__(self):
         super().__init__()
@@ -15,9 +15,11 @@ class LogisticRegressionCOO(LogisticRegression):
         clf = super().fit(X,Y)
         coeffs = clf.coef_
         bias = clf.intercept_
+        self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
         if coeffs.shape[0] == 1:
             coeffs = [coeffs[0], [-value for value in coeffs[0]]]
             bias = np.array([bias[0], -bias[0]])
+            self.mapping = {value: index for index, value in enumerate(sorted(set(Y), reverse=True))}
         self.n = X.shape[1]
         metadata = MetaData()
         training = Table(
@@ -82,22 +84,40 @@ class LogisticRegressionCOO(LogisticRegression):
             secondo_elemento = int(tupla[0])
             lista.append(secondo_elemento)
         a = np.array(lista)
-        return a
+        a = []
+        for v in lista:
+            e = next(key for key, value in self.mapping.items() if value == v)
+            a.append(e)
+        return np.array(a)
 
 
-class LogisticRegressionVEC(LogisticRegression):
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sqlalchemy import create_engine
+from sklearn.metrics import accuracy_score
+from sklearn.linear_model import LogisticRegression
+import numpy as np
+import math
+from sqlalchemy.orm import Session
+from sqlalchemy import Column, Float, Integer, MetaData, Numeric, Table, text
+
+class LogisticRegressionCOO(LogisticRegression):
 
     def __init__(self):
         super().__init__()
     
     def fit(self,X,Y,engine):
         clf = super().fit(X,Y)
-        
+        self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
         coeffs = clf.coef_
         bias = clf.intercept_
 
         if coeffs.shape[0] == 1:
             coeffs = [coeffs[0], [-value for value in coeffs[0]]]
+            coeffs = np.array(coeffs)
+            bias = np.array([bias[0], -bias[0]])
+            self.mapping = {value: index for index, value in enumerate(sorted(set(Y), reverse=True))}
 
         metadata = MetaData()
         training = Table(
@@ -110,15 +130,16 @@ class LogisticRegressionVEC(LogisticRegression):
         )
         metadata.create_all(engine)
         session = Session(engine)
-        for i in range(coeffs.shape[0]):
-            for j in range(coeffs.shape[1]):
+        righe, colonne = coeffs.shape
+        for i in range(righe):
+            for j in range(colonne):
                 insert_query = text(
                     '''
                     INSERT INTO training ("row", "column", "value", "bias")
                     VALUES (:row, :column, :value, :bias)
                     '''
                 )
-                session.execute(insert_query, {"row": i, "column": j, "value": coeffs[i][j], "bias": int(bias[i])})
+                session.execute(insert_query, {"row": i, "column": j, "value": coeffs[i][j], "bias":int(bias[i])})
 
         # Commit the changes
         session.commit()
@@ -163,10 +184,13 @@ class LogisticRegressionVEC(LogisticRegression):
 
         query = text(query)
         results = connection.execute(query)
+        
         lista = []
         for tupla in results:
             secondo_elemento = int(tupla[0])
             lista.append(secondo_elemento)
-        a = np.array(lista)
-        return a
-                
+        a = []
+        for v in lista:
+            e = next(key for key, value in self.mapping.items() if value == v)
+            a.append(e)
+        return np.array(a)

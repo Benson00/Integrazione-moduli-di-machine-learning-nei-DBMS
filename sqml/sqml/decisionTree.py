@@ -10,8 +10,9 @@ class DecisionTreeCOO(DecisionTreeClassifier):
 
     def fit(self,X,Y,engine):
         super().fit(X,Y)
-            
-            
+
+        self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
+
         tree_rules = self.tree_
 
 
@@ -141,8 +142,12 @@ class DecisionTreeCOO(DecisionTreeClassifier):
         for tupla in results:
             secondo_elemento = int(tupla[0])
             lista.append(secondo_elemento)
-        a = np.array(lista)
-        return a
+        a = []
+        for v in lista:
+            e = next(key for key, value in self.mapping.items() if value == v)
+            a.append(e)
+        return np.array(a)
+        
     
 
 class DecisionTreeVEC(DecisionTreeClassifier):
@@ -151,6 +156,7 @@ class DecisionTreeVEC(DecisionTreeClassifier):
 
     def fit(self,X,Y,engine):
         super().fit(X,Y)
+        self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
         tree_rules = self.tree_
         self.n = X.shape[1]
         metadata = MetaData()
@@ -289,8 +295,11 @@ class DecisionTreeVEC(DecisionTreeClassifier):
         for tupla in results:
             secondo_elemento = int(tupla[0])
             lista.append(secondo_elemento)
-        a = np.array(lista)
-        return a
+        a = []
+        for v in lista:
+            e = next(key for key, value in self.mapping.items() if value == v)
+            a.append(e)
+        return np.array(a)
 
 
         
