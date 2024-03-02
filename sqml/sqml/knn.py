@@ -3,7 +3,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sqlalchemy import Column, Float, Integer, MetaData, Table, text
 from sqlalchemy.orm import Session
 
-class Knn:
+class KnnBuilder:
     @staticmethod
     def build(dense: bool, n: int):
         return KnnClassifierRE(n) if dense else KnnClassifierCOO(n)
@@ -55,12 +55,13 @@ class KnnClassifierRE():
         )
         metadata.create_all(engine)
         session = Session(engine)
+        X_test = np.array(X_test).astype(float)
         # INSERIMENTO DATI
         for row_values in X_test:
             row_data = dict(zip([f'{i}' for i in names], row_values))
             session.execute(training.insert().values(row_data))
         # Commit the changes
-        session.commit()
+        session.commit()    
 
     def predict(self, table:str, engine, names):
 
