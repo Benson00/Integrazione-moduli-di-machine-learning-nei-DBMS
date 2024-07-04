@@ -28,6 +28,7 @@
  In sintesi, il pacchetto sviluppato consente di sfruttare le potenzialità del Machine Learning in
  un ambiente SQL, aprendo nuove possibilità per l'analisi e la previsione dei dati direttamente
  nel contesto dei database relazionali. </p>
+ 
  # Tecnologie coinvolte
  Durante lo stage, ho lavorato principalmente con le seguenti tecnologie:
  Linguaggio di programmazione Python: è stato il linguaggio principale utilizzato per lo
