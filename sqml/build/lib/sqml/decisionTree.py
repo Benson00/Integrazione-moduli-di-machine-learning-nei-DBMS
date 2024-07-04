@@ -1,14 +1,19 @@
 from sklearn.tree import DecisionTreeClassifier
 import numpy as np
-from sqlalchemy import Column, Float, Integer, MetaData, String, Table, text
+from sqlalchemy import Column, Float, Integer, MetaData, String, Table,Numeric, text
 from sqlalchemy.orm import Session
+
+class DecisionTreeBuilder:
+    @staticmethod
+    def build(dense: bool):
+        return DecisionTreeRE() if dense else DecisionTreeCOO()
 
 class DecisionTreeCOO(DecisionTreeClassifier):
 
     def __init__(self):
         super().__init__()
 
-    def fit(self,X,Y,engine):
+    def fit(self,X,Y,engine,names=None):
         super().fit(X,Y)
 
         self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
@@ -69,32 +74,38 @@ class DecisionTreeCOO(DecisionTreeClassifier):
         metadata.reflect(bind=engine)
         metadata.drop_all(bind=engine)        
 
-                           
-               
-    def predict(self, X_test, engine):
-        
+    def insert_test(self,X_test, name:str, engine, names=None):
+        #INSERISCO I DATI DA CLASSIFICARE IN UNA TABELLA
         metadata = MetaData()
         test = Table(
-            "test", 
+            name, 
             metadata,
             Column('row', Integer, primary_key=True),
-            Column('col', Integer, primary_key=True),
-            Column('value', Float, primary_key=True)
+            Column('column', Integer, primary_key=True),
+            Column('value', Numeric, primary_key=True)
         )
         metadata.create_all(engine)
         session = Session(engine)
         for i in range(X_test.shape[0]):
             for j in range(X_test.shape[1]):
+                val = X_test[i][j]
+                if isinstance(val, np.integer):
+                    val = int(X_test[i][j])
+                
                 insert_query = text(
-                    '''
-                    INSERT INTO test ("row", "col", "value")
-                    VALUES (:row, :col, :value)
+                    f'''
+                    INSERT INTO {name} ("row", "column", "value")
+                    VALUES (:row, :column, :value)
                     '''
                 )
-                session.execute(insert_query, {"row": i, "col": j, "value": X_test[i][j]})  
-        session.commit()
-        
-        query ='''
+                session.execute(insert_query, {"row": i, "column": j, "value": val})  
+        session.commit()                       
+
+
+
+    def predict(self, table, engine, names=None):
+
+        query =f'''
             WITH RECURSIVE DecisionPath AS (
                 SELECT
                     training.NodeID AS CurrentNode,
@@ -105,7 +116,7 @@ class DecisionTreeCOO(DecisionTreeClassifier):
                     label,
                     T.row as tr
                 FROM
-                    training, test as T
+                    training, {table} as T
                 WHERE
                     NodeID = 0  -- Inizia dalla radice dell'albero
 
@@ -118,15 +129,15 @@ class DecisionTreeCOO(DecisionTreeClassifier):
                     d.LeftChild,
                     d.RightChild,
                     d.label,
-                    test.row
+                    {table}.row
                 FROM
-                    training AS d, test, DecisionPath as dp
+                    training AS d, {table}, DecisionPath as dp
                 WHERE
                     (
-                        dp.LeftChild = d.NodeID AND dp.FeatureName = test.col AND test.value <= dp.Threshold AND tr = test.row
+                        dp.LeftChild = d.NodeID AND dp.FeatureName = {table}.column AND {table}.value <= dp.Threshold AND tr = {table}.row
                     ) OR
                     (
-                        dp.RightChild = d.NodeID AND dp.FeatureName = test.col AND test.value > dp.Threshold AND tr = test.row
+                        dp.RightChild = d.NodeID AND dp.FeatureName = {table}.column AND {table}.value > dp.Threshold AND tr = {table}.row
                     )
             )
             SELECT label, tr
@@ -150,11 +161,11 @@ class DecisionTreeCOO(DecisionTreeClassifier):
         
     
 
-class DecisionTreeVEC(DecisionTreeClassifier):
+class DecisionTreeRE(DecisionTreeClassifier):
     def __init__(self):
         super().__init__()
 
-    def fit(self,X,Y,engine):
+    def fit(self,X,Y,engine,names):
         super().fit(X,Y)
         self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
         tree_rules = self.tree_
@@ -164,7 +175,7 @@ class DecisionTreeVEC(DecisionTreeClassifier):
             "training", 
             metadata,
             Column('nodeid', Integer, primary_key=True),
-            Column('featurename', Integer),
+            Column('featurename', String),
             Column('threshold', Float),
             Column('leftchild', Integer),
             Column('rightchild', Integer),
@@ -184,7 +195,7 @@ class DecisionTreeVEC(DecisionTreeClassifier):
                 session.execute(insert_query, {"nodeid":int(node), "featurename":None, "threshold":None, "leftchild":None, "rightchild":None, "label":str(tree_rules.value[node].argmax())})
                 session.commit()
             else:
-                feature = tree_rules.feature[node] # type: ignore
+                feature = names[tree_rules.feature[node]] # type: ignore 
                 threshold = tree_rules.threshold[node] # type: ignore
                 left_node = tree_rules.children_left[node] # type: ignore
                 right_node = tree_rules.children_right[node] # type: ignore
@@ -208,27 +219,28 @@ class DecisionTreeVEC(DecisionTreeClassifier):
         metadata = MetaData()
         metadata.reflect(bind=engine)
         metadata.drop_all(bind=engine)
-
-
-    def predict(self, X_test, engine):
+    
+    def insert_test(self,X_test,name:str,engine,names):
         metadata = MetaData()
-        test = Table(
-            "test", 
+        training = Table(
+            name, 
             metadata,
             Column('id', Integer, primary_key=True),
-            *[Column(f'f{i}',Float) for i in range(0, self.n)],
+            *[Column(f'{i}',Float) for i in names],
         )
         metadata.create_all(engine)
         session = Session(engine)
-
+        X_test = np.array(X_test).astype(float)
         # INSERIMENTO DATI
         for row_values in X_test:
-            row_data = dict(zip([f'f{i}' for i in range(self.n)], row_values))
-            session.execute(test.insert().values(row_data))
+            row_data = dict(zip([f'{i}' for i in names], row_values))
+            session.execute(training.insert().values(row_data))
         # Commit the changes
         session.commit()
 
-        query ='''
+    def predict(self, table, engine, names):
+
+        query =f'''
             WITH RECURSIVE DecisionPath AS (
                 SELECT
                     NodeID AS CurrentNode,
@@ -237,9 +249,9 @@ class DecisionTreeVEC(DecisionTreeClassifier):
                     LeftChild,
                     RightChild,
                     label,
-                    test.id as tr
+                    {table}.id as tr
                 FROM
-                    training, test
+                    training, {table}
                 WHERE
                     NodeID = 0  -- Inizia dalla radice dell'albero
 
@@ -252,34 +264,34 @@ class DecisionTreeVEC(DecisionTreeClassifier):
                     d.LeftChild,
                     d.RightChild,
                     d.label,
-                    test.id
+                    {table}.id
                 FROM
-                    training AS d, test, DecisionPath as dp
+                    training AS d, {table}, DecisionPath as dp
                 WHERE
                     (
                         dp.LeftChild = d.NodeID AND'''
         
         
         microquery = "("
-        for i in range(self.n):
-            microquery += f''' (dp.FeatureName='{i}' AND test.f{i} <= dp.Threshold) OR''' 
+        for i in names:
+            microquery += f''' (dp.FeatureName='{i}' AND {table}.{i} <= dp.Threshold) OR''' 
         microquery = microquery[:-2] +")"
 
         query += microquery
-        query += '''
-        AND tr = test.id
+        query += f'''
+        AND tr = {table}.id
                     ) OR
                     (
                         dp.RightChild = d.NodeID AND'''
         
         microquery = "("
-        for i in range(self.n):
-            microquery += f''' (dp.FeatureName='{i}' AND test.f{i} > dp.Threshold) OR''' 
+        for i in names:
+            microquery += f''' (dp.FeatureName='{i}' AND {table}.{i} > dp.Threshold) OR''' 
         microquery = microquery[:-2] +")"
         query += microquery
-        query += '''
+        query += f'''
         
-        AND tr = test.id
+        AND tr = {table}.id
                     )
             )
             SELECT label, tr

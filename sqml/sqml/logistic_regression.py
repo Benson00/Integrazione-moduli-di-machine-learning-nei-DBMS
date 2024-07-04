@@ -43,6 +43,8 @@ class LogisticRegressionRE(LogisticRegression):
             session.execute(training.insert().values(row_data))
         # Commit the changes
         session.commit()       
+
+
     
     def clear(self, engine):
         metadata = MetaData()
@@ -187,16 +189,17 @@ class LogisticRegressionCOO(LogisticRegression):
         
     def predict(self, table, engine, names=None):
         
+        connection = engine.connect()
+
         query = f'''
         WITH step AS (
-            SELECT l.row as label,test.row as id, 1/(1+POW({math.e},-(l.bias+SUM(l.value*test.value)))) as prob
-            FROM training as l, test
-            WHERE l.column = test.column
-            GROUP BY l.row, test.row, l.bias
+            SELECT l.row as label,{table}.row as id, 1/(1+POW({math.e},-(l.bias+SUM(l.value*{table}.value)))) as prob
+            FROM training as l, {table}
+            WHERE l.column = {table}.column
+            GROUP BY l.row, {table}.row, l.bias
         ) SELECT label, id FROM step WHERE prob >= (SELECT MAX(prob) from step as s WHERE s.id = step.id) ORDER BY id
-
         '''
-        connection = engine.connect()
+        
 
         query = text(query)
         results = connection.execute(query)

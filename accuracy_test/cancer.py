@@ -1,5 +1,4 @@
-import numpy as np
-import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sqlalchemy import create_engine
 from sqml.decisionTree import *
@@ -31,7 +30,7 @@ def prep():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
 
-    #Cambio in NULL con valori presi dalla mediana della colonna
+    #Cambio i NULL con valori presi dalla mediana della colonna
     for df1 in [X_train, X_test]:
         for col in X_train.columns:
             col_median=X_train[col].median()

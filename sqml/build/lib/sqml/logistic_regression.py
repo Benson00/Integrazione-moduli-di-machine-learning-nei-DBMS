@@ -4,14 +4,20 @@ import math
 from sqlalchemy.orm import Session
 
 
+class LogisticRegressionBuilder:
+    @staticmethod
+    def build(dense: bool):
+        return LogisticRegressionRE() if dense else LogisticRegressionCOO()
+
+
 from sqlalchemy import Column, Float, Integer, MetaData, Numeric, Table, text
 
-class LogisticRegressionVEC(LogisticRegression):
+class LogisticRegressionRE(LogisticRegression):
 
     def __init__(self):
         super().__init__()
     
-    def fit(self,X,Y,engine):
+    def fit(self,X,Y,engine, names):
         clf = super().fit(X,Y)
         coeffs = clf.coef_
         bias = clf.intercept_
@@ -26,54 +32,59 @@ class LogisticRegressionVEC(LogisticRegression):
             "training", 
             metadata,
             Column('id', Integer, primary_key=True),
-            *[Column(f'f{i}',Float) for i in range(0, self.n)],
+            *[Column(f'{i}',Float) for i in names],
             Column('bias', Float)
         )
         metadata.create_all(engine)
         session = Session(engine)
         # INSERIMENTO DATI
         for x_values, y_value in zip(coeffs, bias):
-            row_data = dict(zip([f'f{i}' for i in range(self.n)] + ['bias'], list(x_values) + [float(y_value)]))
+            row_data = dict(zip([f'{i}' for i in names] + ['bias'], list(x_values) + [float(y_value)]))
             session.execute(training.insert().values(row_data))
         # Commit the changes
-        session.commit()
-    
-        
+        session.commit()       
+
+
     
     def clear(self, engine):
         metadata = MetaData()
         metadata.reflect(bind=engine)
         metadata.drop_all(bind=engine)
-    
-    def predict(self, X, engine):
+
+    def insert_test(self,X_test,name:str,engine,names):
         metadata = MetaData()
         training = Table(
-            "test", 
+            name, 
             metadata,
             Column('id', Integer, primary_key=True),
-            *[Column(f'f{i}',Float) for i in range(0, self.n)],
+            *[Column(f'{i}',Float) for i in names],
         )
         metadata.create_all(engine)
         session = Session(engine)
+        X_test = np.array(X_test).astype(float)
         # INSERIMENTO DATI
-        for row_values in X:
-            row_data = dict(zip([f'f{i}' for i in range(self.n)], row_values))
+        for row_values in X_test:
+            row_data = dict(zip([f'{i}' for i in names], row_values))
             session.execute(training.insert().values(row_data))
+        # Commit the changes
         session.commit()
+    
+    def predict(self, table, engine, names):
+        
 
         connection = engine.connect()
            
         microquery = "(l.bias + "
         
-        for word in range (self.n):
-            microquery += f"(l.f{word}*test.f{word})+"
+        for word in names:
+            microquery += f"(l.{word}*{table}.{word})+"
         microquery = microquery[:-1]+")"
 
         query = f'''
 
         WITH step AS (
-            SELECT l.id as label,test.id as id, 1/(1+POW({math.e},-{microquery})) as prob
-            FROM training as l, test
+            SELECT l.id as label,{table}.id as id, 1/(1+POW({math.e},-{microquery})) as prob
+            FROM training as l, {table}
         ) SELECT label-1, id FROM step WHERE prob >= (SELECT MAX(prob) from step as s WHERE s.id = step.id) ORDER BY id
 
         '''
@@ -90,7 +101,7 @@ class LogisticRegressionVEC(LogisticRegression):
             a.append(e)
         return np.array(a)
 
-
+########################################################################################################################
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -107,7 +118,7 @@ class LogisticRegressionCOO(LogisticRegression):
     def __init__(self):
         super().__init__()
     
-    def fit(self,X,Y,engine):
+    def fit(self,X,Y,engine,names=None):
         clf = super().fit(X,Y)
         self.mapping = {value: index for index, value in enumerate(sorted(set(Y)))}
         coeffs = clf.coef_
@@ -148,12 +159,12 @@ class LogisticRegressionCOO(LogisticRegression):
         metadata = MetaData()
         metadata.reflect(bind=engine)
         metadata.drop_all(bind=engine)
-        
-    def predict(self, X_test, engine):
+
+    def insert_test(self,X_test, name:str, engine, names=None):
         #INSERISCO I DATI DA CLASSIFICARE IN UNA TABELLA
         metadata = MetaData()
         test = Table(
-            "test", 
+            name, 
             metadata,
             Column('row', Integer, primary_key=True),
             Column('column', Integer, primary_key=True),
@@ -163,24 +174,32 @@ class LogisticRegressionCOO(LogisticRegression):
         session = Session(engine)
         for i in range(X_test.shape[0]):
             for j in range(X_test.shape[1]):
-                insert_query = text(
-                    '''
-                    INSERT INTO test ("row", "column", "value")
-                    VALUES (:row, :column, :value)
-                    '''
-                )
-                session.execute(insert_query, {"row": i, "column": j, "value": X_test[i][j]})  
+                val = X_test[i][j]
+                if isinstance(val, np.integer):
+                    val = int(X_test[i][j])
+                if val != 0:
+                    insert_query = text(
+                        f'''
+                        INSERT INTO {name} ("row", "column", "value")
+                        VALUES (:row, :column, :value)
+                        '''
+                    )
+                    session.execute(insert_query, {"row": i, "column": j, "value": val})  
         session.commit()
+        
+    def predict(self, table, engine, names=None):
+        
+        connection = engine.connect()
+
         query = f'''
         WITH step AS (
-            SELECT l.row as label,test.row as id, 1/(1+POW({math.e},-(l.bias+SUM(l.value*test.value)))) as prob
-            FROM training as l, test
-            WHERE l.column = test.column
-            GROUP BY l.row, test.row, l.bias
+            SELECT l.row as label,{table}.row as id, 1/(1+POW({math.e},-(l.bias+SUM(l.value*{table}.value)))) as prob
+            FROM training as l, {table}
+            WHERE l.column = {table}.column
+            GROUP BY l.row, {table}.row, l.bias
         ) SELECT label, id FROM step WHERE prob >= (SELECT MAX(prob) from step as s WHERE s.id = step.id) ORDER BY id
-
         '''
-        connection = engine.connect()
+        
 
         query = text(query)
         results = connection.execute(query)
