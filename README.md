@@ -1,4 +1,4 @@
-# Integrazione-moduli-di-machine-learning-in-SQL
+# Integrazione-moduli-di-machine-learning-nei-DBMS
 
  
  # Obiettivi del lavoro
