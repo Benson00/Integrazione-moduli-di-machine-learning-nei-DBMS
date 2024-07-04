@@ -20,15 +20,14 @@
  2) Decision tree
  3) Random forests
  4) Logistic regression
-Per ogni algoritmo sono state fornite due classi, per due rappresentazioni dei dati differenti,
+<p>Per ogni algoritmo sono state fornite due classi, per due rappresentazioni dei dati differenti,
  relazionale per i dati densi e Coordinat Format List(COO) per i dati sparsi.
  Le classi sviluppate permettono di addestrare modelli di machine learning usando la libreria
  scikit-learn in Python e di eseguire la previsione direttamente attraverso query SQL sui dati
  presenti nel database.
  In sintesi, il pacchetto sviluppato consente di sfruttare le potenzialità del Machine Learning in
  un ambiente SQL, aprendo nuove possibilità per l'analisi e la previsione dei dati direttamente
- nel contesto dei database relazionali.
- 5
+ nel contesto dei database relazionali. </p>
  # Tecnologie coinvolte
  Durante lo stage, ho lavorato principalmente con le seguenti tecnologie:
  Linguaggio di programmazione Python: è stato il linguaggio principale utilizzato per lo
