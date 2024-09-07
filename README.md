@@ -1,38 +1,38 @@
-# Obiettivi del Lavoro
+# Project Objectives
 
-L'obiettivo principale del lavoro era quello di integrare modelli di machine learning all'interno di un ambiente SQL, garantendo precisione nella predizione e buone prestazioni. Questo avrebbe consentito di eseguire analisi predittive direttamente sui dati memorizzati nel database, ottenendo i seguenti vantaggi:
+The main objective of the project was to integrate machine learning models within an SQL environment, ensuring prediction accuracy and high performance. This approach would enable predictive analysis directly on the data stored in the database, providing the following benefits:
 
-- **Calcolo vicino ai dati**: evitando l'estrazione dei dati e risparmiando sui costi associati.
-- **Capacità dei moderni sistemi DBMS**: gestione ed elaborazione di grandi volumi di dati per migliorare efficienza e scalabilità.
-- **Portabilità dei modelli**: l'utilizzo di linguaggi standard, adottati dalla maggior parte dei DBMS relazionali, garantisce la definizione della logica inferenziale degli algoritmi di machine learning su diversi sistemi.
+- **Proximity to the data**: avoiding data extraction and reducing associated costs.
+- **Capabilities of modern DBMS**: handling and processing large volumes of data to improve efficiency and scalability.
+- **Model portability**: the use of standard languages, adopted by most relational DBMS, ensures the inferential logic of machine learning algorithms can be defined across different systems.
 
-# Descrizione del Lavoro Svolto
+# Work Description
 
-Ho progettato e implementato un pacchetto Python che fornisce metodi di Machine Learning integrati in SQL. In particolare, sono stati integrati quattro algoritmi di Machine Learning, ciascuno con un modulo specifico:
+I designed and implemented a Python package that provides machine learning methods integrated into SQL. Specifically, four machine learning algorithms were integrated, each with its own dedicated module:
 
 - **K-nearest neighbors (KNN)**
 - **Decision tree**
 - **Random forests**
 - **Logistic regression**
 
-Per ogni algoritmo, sono state sviluppate due classi per rappresentazioni dei dati differenti:
+For each algorithm, two classes were developed to support different data representations:
 
-- **Relazionale**: per dati densi.
-- **Coordinate Format List (COO)**: per dati sparsi.
+- **Relational**: for dense data.
+- **Coordinate Format List (COO)**: for sparse data.
 
-Le classi sviluppate consentono di addestrare modelli di machine learning usando la libreria scikit-learn in Python e di eseguire previsioni direttamente tramite query SQL sui dati presenti nel database. In sintesi, il pacchetto consente di sfruttare le potenzialità del Machine Learning in un ambiente SQL, aprendo nuove possibilità per l'analisi e la previsione dei dati nel contesto dei database relazionali.
+These classes allow the training of machine learning models using Python's scikit-learn library and enable predictions to be made directly through SQL queries on data within the database. In essence, the package unlocks the potential of machine learning in an SQL environment, opening up new possibilities for data analysis and prediction within relational databases.
 
-# Tecnologie Coinvolte
+# Technologies Used
 
-Durante lo stage, ho lavorato con le seguenti tecnologie:
+During the project, I worked with the following technologies:
 
-- **Python**: linguaggio principale utilizzato per lo sviluppo del pacchetto, grazie alla sua versatilità e alle numerose librerie disponibili.
-- **Librerie scikit-learn e SQLAlchemy**:
-  - **scikit-learn**: utilizzata per implementare gli algoritmi di Machine Learning, fornendo strumenti per l'addestramento e la valutazione dei modelli.
-  - **SQLAlchemy**: utilizzata per interagire con il database SQL, consentendo query efficienti e sicure.
-- **SQL**: utilizzato per eseguire previsioni direttamente all'interno del database, garantendo sicurezza e riducendo i tempi di elaborazione. La scrittura di query SQL complesse è stata essenziale per implementare gli algoritmi di Machine Learning e generare previsioni accurate.
-- **DBMS**: ho lavorato con due sistemi di gestione database:
-  - **PostgreSQL**: un DBMS open-source, noto per la sua affidabilità, scalabilità e capacità di gestire grandi volumi di dati.
-  - **SQLite**: un DBMS leggero e serverless, utile per lo sviluppo locale e il testing.
+- **Python**: the primary language used to develop the package, chosen for its versatility and wide range of available libraries.
+- **scikit-learn and SQLAlchemy libraries**:
+  - **scikit-learn**: used to implement machine learning algorithms, offering tools for model training and performance evaluation.
+  - **SQLAlchemy**: used to interact with the SQL database, enabling efficient and secure query execution.
+- **SQL**: used to perform predictions directly within the database, ensuring data security and reducing processing times. Writing complex SQL queries was essential for implementing machine learning algorithms and generating accurate predictions.
+- **DBMS**: I worked with two database management systems:
+  - **PostgreSQL**: an open-source DBMS known for its reliability, scalability, and ability to manage large datasets.
+  - **SQLite**: a lightweight, serverless DBMS, useful for local development and testing.
 
-L'utilizzo combinato di queste tecnologie ha permesso lo sviluppo di un pacchetto efficiente per eseguire analisi predittive direttamente sui dati memorizzati in un database SQL.
+The combined use of these technologies enabled the development of an efficient package for performing predictive analytics directly on data stored in an SQL database.
